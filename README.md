@@ -8,11 +8,13 @@ This repository contains the code used for the results in the above manuscript. 
 - `src/` the extra class files required to run the simulation code using Chaste
 - `test/` the test files specifying the simulation setup to run for the results in the paper
 - `figures/` the R code to generate the figures for the paper using the results from the Chaste simulations.
+- `matlab_code/` the matlab code for the single cell solutions.
 
 ## Running the simulations using Chaste
 
 ### Core Chaste code
 This code should run using the core version of Chaste, which can be found [here](https://chaste.cs.ox.ac.uk/trac/wiki), along with documentation on how to install and run the code. 
+Clone this repository into the `projects` subdirectory of the Chaste code. 
 In case there is any issue with backwards compatability in future versions of the code, the Chaste version used for the results in this manuscript can be pulled from [my Chaste repo](https://github.com/clairemiller/Chaste). 
 
 ### Simulations for the paper
