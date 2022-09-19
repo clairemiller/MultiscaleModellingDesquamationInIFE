@@ -15,7 +15,7 @@ This repository contains the code used for the results in the above manuscript. 
 ### Core Chaste code
 This code should run using the core version of Chaste, which can be found [here](https://chaste.cs.ox.ac.uk/trac/wiki), along with documentation on how to install and run the code. 
 Clone this repository into the `projects` subdirectory of the Chaste code. 
-In case there is any issue with backwards compatability in future versions of the code, the Chaste version used for the results in this manuscript can be pulled from [my Chaste repo](https://github.com/clairemiller/Chaste). 
+In case there is any issue with backwards compatability in future versions of the code, the Chaste version used for the results in this manuscript can be pulled from [my Chaste repo](https://github.com/clairemiller/Chaste), commit `e254861c657d325872aba156cc39a8ae56210a4b`. 
 
 ### Simulations for the paper
 
