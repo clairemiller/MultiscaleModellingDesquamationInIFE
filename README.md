@@ -45,7 +45,7 @@ To generate the figures, first do the following:
 
 ### Figure 2: single cell results
 These results were simulated using the Matlab script `matlab_code/solve_movingcell.m` which generates a csv file: `matlab_code/data/movingcell_solutions.csv`.
-To generate the plots from this code, run `figures/scripts/moving_cell_solutions.R`, modifying line 4 (`filename <- [path]/matlab_code/data/movingcell_solutions.csv`) for the correct csv output path.
+To generate the plots from this code, run `figures/scripts/moving_cell_solutions.R`, modifying line 11 of `figures/scripts/paper_plot_theme.R` if needed (`matlab_data_dir <- "../matlab_code/data/") for the correct matlab output directory.
 The figure 2 plot file `figures/movingcell_effective.pdf` will be generated. 
 A second plot file `figures/movingcell_actual.pdf` will also be generated, which is Figure E in S1 Text.
 
