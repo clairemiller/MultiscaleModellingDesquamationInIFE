@@ -39,7 +39,7 @@ The following details which test and figures code to run to generate each of the
 The figures code assumes all results are contained in subdirectories of one main results directory. 
 To generate the figures, first do the following:
 
-1. The path to the parent results directory needs to be specified in line 79 of `figures/scripts/paper_plot_theme.R`: `results_parent_dir <- "~/Chaste/Chaste_Results/MultiscaleModellingDesquamationInIFE/"`
+1. The path to the parent results directory (and the matlab data directory) needs to be specified in line 10 of `figures/scripts/paper_plot_theme.R`: `results_parent_dir <- "~/Chaste/Chaste_Results/MultiscaleModellingDesquamationInIFE/"`
 2. Open the R project `figures/MultiscaleModellingDesquamationInIFE.Rproj` in RStudio if using
 3. If desired, modify the plotting theme functions and colour sets in `scripts/paper_plot_theme.R`
 
