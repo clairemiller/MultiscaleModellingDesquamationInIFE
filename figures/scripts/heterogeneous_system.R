@@ -1,12 +1,12 @@
 source("scripts/paper_plot_theme.R")
-results_dir <- paste0(results_parent_dir,"Treated/")
+results_dir <- paste0(results_parent_dir,"HeterogeneousInhibitor/")
 
 
 # Steady state height ------------------------------------------------------
 # Process data
 d <- applyFunctionToResultsDirectories(getHeights,maindir=results_dir)
-d <- rbindlist(d)
-d$n_mut <- as.numeric(gsub(".*NDiseased|pct","",d$setup))
+d <- bind_rows(d)
+d$n_mut <- as.numeric(gsub(".*NAbnormal|pct","",d$setup))
 d$n_healthy <- 100-d$n_mut
 d$time <- d$time-min(d$time)
 
@@ -25,11 +25,11 @@ p_ss <- ggplot(d_ss,aes(x=n_healthy,y=ss)) +
   geom_line(data=d_ss_predict,linetype=2,size=2) +
   labs(x="Prop. healthy SC [%]",y=TeX("Corneum $\\tau_{ss}$ \\[CD\\]"))
 p_ss <- add_paper_theme(p_ss) 
-output_pdf_plot(p_ss,"treated_ss.pdf")
+output_pdf_plot(p_ss,"heterogeneous_ss.pdf")
 
 
 # Reactants ---------------------------------------------------------------
-d_r <- getReactants(paste0(results_dir,"NDiseased050/Seed00/results_from_time_360"))
+d_r <- getReactants(paste0(results_dir,"NAbnormal050/Seed00/results_from_time_360"))
 d_r <- filter(d_r,t==max(t))
 d_r <- tidyr::pivot_longer(d_r,cols=c("s","e","i"),names_to="reactant")
 d_r$reactant <- factor(d_r$reactant,levels=c("s","e","i")) # Need to ensure consistent order
@@ -51,7 +51,7 @@ p_r <- add_paper_theme_colourplot(p_r,panel.grid.major.x = element_line(colour =
 p_sub <- add_paper_theme(p_sub,plot.background= element_rect(fill="white",colour="black"))
 vp <- viewport(width=0.3,height=0.3,x=0.72,y=0.68)
 # Manual output to add the extra subplot
-pdf("treated_reactants.pdf",width=15,height=10)
+pdf("heterogeneous_reactants.pdf",width=15,height=10)
 print(p_r)
 print(p_sub,vp=vp)
 dev.off()
@@ -60,42 +60,35 @@ dev.off()
 # Velocity ----------------------------------------------------------------
 # Process data
 d_v <- applyFunctionToResultsDirectories(getZVelocity,maindir=results_dir)
-d_v <- rbindlist(d_v,idcol="setup")
-d_v$n_healthy <- 100-as.numeric(gsub(".*NDiseased|Seed.*","",d_v$setup))
+d_v <- bind_rows(d_v,.id="setup")
+d_v$n_healthy <- 100-as.numeric(gsub(".*NAbnormal|Seed.*","",d_v$setup))
 
 d_v <- filter(d_v,time >= (min(time)+30))
 d_v$time <- d_v$time-min(d_v$time)
 
-ts_v <- summarise(group_by(d_v,n_healthy,time),mean_v=mean(v), min_v = min(v), max_v=max(v))
 mean_v <- summarise(group_by(d_v,n_healthy),mean_v=mean(v),min_v=min(v),max_v=max(v))
-var_v =  (max(mean_v$mean_v)-min(mean_v$mean_v))/mean(mean_v$mean_v)
 
 # Plot
-p_v <- ggplot(mean_v,aes(x=n_healthy,y=mean_v)) +
-  geom_point(size=10) + 
-  geom_errorbar(aes(ymin=min_v,ymax=max_v),width=5,size=2) +
+p_v <- ggplot() +
+  geom_errorbar(aes(x=as.factor(n_healthy),ymin=min_v,ymax=max_v), 
+                linetype=1, width=0.5, size=2, data=mean_v) +
+  geom_boxplot(aes(x=as.factor(n_healthy),y=v),coef=10, size=2, data=d_v) +
   labs(x="Prop. healthy SC [%]",y=TeX("z velocity \\[CD.hr^{-1}\\]"))
 p_v <- add_paper_theme(p_v)
-output_pdf_plot(p_v,"treated_velocity.pdf")
+output_pdf_plot(p_v,"heterogeneous_velocity.pdf")
 
 
 # Turnover time -----------------------------------------------------------
 d_tt <- applyFunctionToResultsDirectories(getTurnoverTime,maindir=results_dir)
-d_tt <- rbindlist(d_tt)
+d_tt <- bind_rows(d_tt)
 d_tt <- filter(d_tt,time >= (min(time) + 30))
-d_tt$n_healthy <- 100-as.numeric(gsub(".*NDiseased|/Seed.*","",d_tt$setup))
+d_tt$n_healthy <- 100-as.numeric(gsub(".*NAbnormal|/Seed.*","",d_tt$setup))
 
 d_tt_ave <- summarise(group_by(d_tt,n_healthy),mean_tt=mean(age),max_tt=max(age),min_tt=min(age),median_tt=median(age))
 
-# Against height
-d_tt_ss <- inner_join(d_tt_ave,d_ss,by="n_healthy")
-fit <- lm(median_tt~ss, data=d_tt_ss)
-p_tt_ss <- ggplot(d_tt_ss,aes(x=ss,y=median_tt, colour=n_healthy)) + 
-  geom_point(size=10) +
-  geom_smooth(method="lm",se=F, colour="black", linetype=2, size=2) +
-  labs(y="Turnover time [days]", x=TeX("Corneum $\\tau_{ss}$ \\[CD\\]"), colour="Prop. healthy\nSC [%]") +
-  xlim(7.7,11) + ylim(9,12.3)
-p_tt_ss <- add_paper_theme(p_tt_ss,
-                           panel.grid.major.x = element_line(colour = "lightgrey"),
-                           legend.position=c(0.83,0.3))
-output_pdf_plot(p_tt_ss,"treated_heightvturnover.pdf") 
+p_tt <- ggplot(d_tt,aes(x=as.factor(n_healthy))) +
+  geom_errorbar(aes(ymin=min_tt,ymax=max_tt), data=d_tt_ave, linetype=1, width=0.5, size=2) +
+  stat_boxplot(aes(y=age),geom='boxplot',coef=20, size=2) +
+  labs(x="Prop. healthy SC [%]",y="Turnover time [days]")
+p_tt <- add_paper_theme(p_tt)
+output_pdf_plot(p_tt,"heterogeneous_turnovertime.pdf")

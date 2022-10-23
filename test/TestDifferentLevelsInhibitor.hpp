@@ -25,11 +25,11 @@
 #include "CellAgeAtDeathWriter.hpp"
 
 // Fill file
-#include "FillTissueFunctionsProject3.hpp"
+#include "FillTissueFunctions.hpp"
 
 
 
-class TestMutations : public AbstractCellBasedTestSuite
+class TestDifferentLevesInhibitor : public AbstractCellBasedTestSuite
 {
 public:
     void TestDifferentLevelsInhibitor() throw(Exception)
@@ -37,14 +37,14 @@ public:
         for (unsigned i = 0; i < 5; i++)
         {
             unsigned iT_pct = i*25;
-            RunDiseasedTissue(iT_pct);
+            RunDifferentLevelsInhibitor(iT_pct);
         }
     }
-    void RunDiseasedTissue(unsigned iT_pct) throw(Exception)
+    void RunDifferentLevelsInhibitor(unsigned iT_pct) throw(Exception)
     {
         double fill_length = 15.0*24.0;
         std::stringstream fill_dir_stream;
-        fill_dir_stream << "Project3WithAdaptiveHeight/TestWithInitialRestriction/Diseased/InhibitorLevel";
+        fill_dir_stream << "TissueFill/InhibitorLevel";
         fill_dir_stream << iT_pct << "pct/Seed";
 
         assert(iT_pct <= 100);
@@ -60,7 +60,7 @@ public:
 
         // Set up output folder
         std::stringstream output_folder_stream;
-        output_folder_stream << "Project3WithAdaptiveHeight/DiseasedTissue/InhibitorLevel";
+        output_folder_stream << "DifferentLevelsInhibitor/InhibitorLevel";
         output_folder_stream << iT_pct << "pct/Seed";
         std::string output_folder = ZeroFill(output_folder_stream.str(),seed);
         p_simulator->SetOutputDirectory(output_folder);

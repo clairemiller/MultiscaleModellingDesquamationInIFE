@@ -25,30 +25,30 @@
 #include "TissueHeightWriter.hpp"
 
 // Fill file
-#include "FillTissueFunctionsProject3.hpp"
+#include "FillTissueFunctions.hpp"
 
 
 
-class TestMutations : public AbstractCellBasedTestSuite
+class TestHeterogeneousInhibitor : public AbstractCellBasedTestSuite
 {
 public:
-    void TestDifferentMutationCounts() throw(Exception)
+    void TestHeterogeneousInhibitor() throw(Exception)
     {
         for (unsigned i = 0; i < 5; i++)
         {
             unsigned mut_count = 25*i;
-            RunSimulationWithMutations(mut_count);
+            RunSimulationWithHeterogeneity(mut_count);
         }        
     }
 
-    void RunSimulationWithMutations(unsigned mut_count) throw(Exception)
+    void RunSimulationWithHeterogeneity(unsigned mut_count) throw(Exception)
     {
         assert(mut_count >= 0);
         assert(mut_count <= 100);
 
         double fill_length = 15.0*24.0;
         std::stringstream fill_dir_stream;
-        fill_dir_stream << "Project3WithAdaptiveHeight/TestWithInitialRestriction/Cured/NDiseased";
+        fill_dir_stream << "TissueFill/NAbnormal";
 
         fill_dir_stream << ZeroFill("",mut_count,3);
         fill_dir_stream << "/Seed";
@@ -62,7 +62,7 @@ public:
 
         // Set up output folder
         std::stringstream output_folder_stream;
-        output_folder_stream << "Project3WithAdaptiveHeight/Cured/NDiseased";
+        output_folder_stream << "HeterogeneousInhibitor/NAbnormal";
 	    output_folder_stream << ZeroFill("",mut_count,3);
 	    output_folder_stream << "/Seed";
         std::string output_folder = ZeroFill(output_folder_stream.str(),seed);

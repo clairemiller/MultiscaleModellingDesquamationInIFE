@@ -25,7 +25,7 @@
 #include "TissueHeightWriter.hpp"
 
 // Fill file
-#include "FillTissueFunctionsProject3.hpp"
+#include "FillTissueFunctions.hpp"
 
 
 
@@ -77,7 +77,7 @@ public:
 
         // Generate the output folder for the fill
         std::stringstream fill_dir_stream;
-        fill_dir_stream << "Project3WithAdaptiveHeight/TestWithInitialRestriction/" << folder_ext;
+        fill_dir_stream << "TissueFill/" << folder_ext;
         fill_dir_stream << "/Seed";
 
         double fill_length = 15.0*24.0;
@@ -252,7 +252,7 @@ public:
 
     // Set up output folder
     std::stringstream output_folder_stream;
-    output_folder_stream << "Project3WithAdaptiveHeight/TwoProliferativePopulations/" << folder_ext;
+    output_folder_stream << "TwoProliferativePopulations/" << folder_ext;
 	output_folder_stream << "/Seed";
     std::string output_folder = ZeroFill(output_folder_stream.str(),seed);
     simulator.SetOutputDirectory(output_folder);

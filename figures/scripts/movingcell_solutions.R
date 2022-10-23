@@ -1,7 +1,7 @@
 source("scripts/paper_plot_theme.R")
 
 # Read in data and process ------------------------------------------------
-filename <- "~/matlab/data/movingcell_solutions.csv"
+filename <- file.path(matlab_data_dir,"movingcell_solutions.csv")
 d <- read.csv(filename)
 d$t_day <- d$t_hr/24
 d <- filter(d,klk==5)

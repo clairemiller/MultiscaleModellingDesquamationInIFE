@@ -1,6 +1,6 @@
 source("scripts/paper_plot_theme.R")
 
-results_dir <- paste0(results_parent_dir,"DiseasedTissue/")
+results_dir <- paste0(results_parent_dir,"DifferentLevelsInhibitor/")
 
 addITScale <- function(p,levels_prop,...) {
   p + scale_color_gradient(breaks=levels_prop, 
@@ -10,7 +10,7 @@ addITScale <- function(p,levels_prop,...) {
 # Steady state height plot ------------------------------------------------------
 # Process data
 d <- applyFunctionToResultsDirectories(getHeights, maindir=results_dir)
-d <- rbindlist(d)
+d <- bind_rows(d)
 d$iT_pct <- as.numeric(gsub(".*InhibitorLevel|pct","",d$setup))
 
 d <- mutate(filter(d,time >= 30+min(time)), time = time-min(time), iT = iT_pct/100)
@@ -35,7 +35,7 @@ output_pdf_plot(p_ss,"varyinhibitor_ss.pdf",pwidth=12)
 # Reactants ---------------------------------------------------------------
 # Process data
 d_r <- applyFunctionToResultsDirectories(getReactants,maindir=results_dir,pattern="Seed00")
-d_r <- rbindlist(d_r)
+d_r <- bind_rows(d_r)
 d_r$iT <- as.numeric(gsub(".*InhibitorLevel|pct/Seed.*","",d_r$id))/100
 
 # Determine total amount of free enzyme in the system
@@ -75,22 +75,18 @@ output_pdf_plot(p_e,"varyinhibitor_reactants_e.pdf")
 # Turnover time -----------------------------------------------------------
 # Process data
 d_tt <- applyFunctionToResultsDirectories(getTurnoverTime,maindir=results_dir)
-d_tt <- rbindlist(d_tt)
+d_tt <- bind_rows(d_tt)
 d_tt$iT <- as.numeric(gsub(".*InhibitorLevel|pct/Seed.*","",d_tt$setup))/100
 d_tt <- filter(d_tt,time >= (min(time) + 30))
 d_tt_ave <- summarise(group_by(d_tt,iT),mean_tt=mean(age),max_tt=max(age),min_tt=min(age),median_tt=median(age))
 
-#change_tt <- filter(d_tt_ave,iT %in% c(0,1))
-#change_tt <- 1-change_tt$median_tt[1]/change_tt$median_tt[2]
-
-# Box plot
-p_tt_violin <- ggplot(d_tt) +
-  stat_boxplot(aes(x=as.factor(iT),y=age),geom="boxplot",coef=100) +
-  #geom_point(aes(x=as.factor(iT),y=median_tt),data=d_tt_ave,size=10) +
-  labs(x=TeX("$\\frac{i_T}{e_T}$ \\[nM\\]"),y="Turnover time [days]") +
-  ylim(5,23)
-p_tt_violin <- add_paper_theme(p_tt_violin)
-output_pdf_plot(p_tt_violin,"varyinhibitor_turnovertime.pdf")
+# Plot
+p_tt <- ggplot(d_tt,aes(x=as.factor(iT),y=age)) +
+  stat_boxplot(geom='errorbar', linetype=1, width=0.5, coef=10, size=2) +
+  stat_boxplot(geom='boxplot',coef=10, size=2) +
+  labs(x=TeX("$\\frac{i_T}{e_T}$ \\[nM\\]"),y="Turnover time [days]")
+p_tt <- add_paper_theme(p_tt)
+output_pdf_plot(p_tt,"varyinhibitor_turnovertime.pdf")
 
 # Against height
 d_tt_ss <- inner_join(d_tt_ave,d_ss,by="iT")
@@ -107,21 +103,16 @@ output_pdf_plot(p_tt_ss,"varyinhibitor_heightvturnover.pdf")
 # Cell velocity -----------------------------------------------------------
 # Process data
 d_v <- applyFunctionToResultsDirectories(getZVelocity,maindir=results_dir)
-d_v <- rbindlist(d_v,idcol="setup")
+d_v <- bind_rows(d_v,.id="setup")
 d_v$iT <- as.numeric(gsub(".*InhibitorLevel|pctSeed.*","",d_v$setup))/100
 d_v <- filter(d_v,time >= (min(time)+30))
 d_v$time <- d_v$time-min(d_v$time)
-
-ts_v <- summarise(group_by(d_v,iT,time),mean_v=mean(v), min_v = min(v), max_v=max(v))
 mean_v <- summarise(group_by(d_v,iT),mean_v=mean(v),min_v=min(v),max_v=max(v))
-var_v =  (max(mean_v$mean_v)-min(mean_v$mean_v))/mean(mean_v$mean_v)
 
 # Plot
-p_v <- ggplot(mean_v,aes(x=iT,y=mean_v)) +
-  geom_point(size=10) + 
-  geom_errorbar(aes(ymin=min_v,ymax=max_v),width=0.05,size=2) +
+p_v <- ggplot(d_v,aes(x=as.factor(iT))) +
+  geom_errorbar(aes(ymin=min_v,ymax=max_v), linetype=1, width=0.5, size=2, data=mean_v) +
+  geom_boxplot(aes(y=v),coef=10, size=2) +
   labs(x=TeX("\\frac{i_T}{e_T} \\[nM\\]"),y=TeX("z velocity \\[CD.hr^{-1}\\]"))
 p_v <- add_paper_theme(p_v) 
 output_pdf_plot(p_v,"varyinhibitor_velocity.pdf")
-
-

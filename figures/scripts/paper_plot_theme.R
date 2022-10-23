@@ -5,10 +5,13 @@ library(dplyr)
 library(grid)
 library(tidyr)
 
+# Path to results
+#---------------------------------------------------
+results_parent_dir <- "~/Results/MultiscaleModellingDesquamationInIFE/"
+matlab_data_dir <- "../matlab_code/data/"
 
 # Plotting functions/data
 #---------------------------------------------------
-
 brewer_palette <- "Set1"
 brewer_colours <- brewer.pal(9,brewer_palette)
 brewer_colours <- brewer_colours[-6] # Removing yellow
@@ -75,8 +78,6 @@ output_pdf_plot <- function(p, filename, pwidth=15,pheight=10) {
 
 # Data read functions
 #-----------------------------------------
-results_parent_dir <- "~/Results/MultiscaleModellingDesquamationInIFE/"
-
 getHeights <- function(filepath)
 {
   print(filepath)
@@ -155,3 +156,36 @@ applyFunctionToResultsDirectories <- function(fun,maindir="./",pattern="",...)
   names(subdirs) <- gsub("\\.|/|results_from_time_[0-9]+","",subdirs)
   return( lapply(subdirs,fun,...) )
 }
+
+# Efficient loading of a Chaste results file
+readChasteResultsFile <- function(filename, filepath=".", columns="v")
+{
+  # Read method using readChar:
+  fullfilename <- paste(filepath,filename,sep="/")
+  size <- file.info(fullfilename)$size
+  dat <- readChar(fullfilename,size,useBytes=T)
+  dat <- unlist(strsplit(dat,"\r\n|\n|\r"))
+  
+  # Split the string into the desired columns
+  dat <- strsplit(dat,"\\s+")
+  # Remove any empty rows
+  i <- which(sapply(dat,length) > 1)
+  dat <- dat[i]
+  dat <- lapply(dat, function(x) {
+    t <- as.numeric(x[1]) # Extract the time
+    d <- as.numeric(x[-1]) # Convert data to numeric
+    d <- matrix(d,ncol=length(columns),byrow=TRUE,dimnames = list(rows=c(),columns))
+    return( data.frame(time=t,d) )
+  })
+  dat <- bind_rows(dat)
+  return(dat)
+}
+
+readCellData<-function(filepath,var_name, dimensions = 3)
+{
+  filename <- paste0("celldata_",var_name,".dat")
+  dim_names <- c("x","y","z")[1:dimensions]
+  columns <- c("loc_idx","id",dim_names,var_name)
+  return(readChasteResultsFile(filepath=filepath,filename=filename,columns=columns))
+}
+
